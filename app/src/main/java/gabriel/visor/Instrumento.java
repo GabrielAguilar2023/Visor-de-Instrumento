@@ -29,6 +29,7 @@ public class Instrumento extends AppCompatActivity {
     private View controlesOcultables;
     private boolean estanVisiblesLosControles;
 
+
     private static String direccionMac;
 
     private final Runnable OcultarRunnable = new Runnable() {
