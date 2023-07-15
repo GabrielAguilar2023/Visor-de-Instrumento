@@ -1,6 +1,9 @@
 package gabriel.visor;
 
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,7 +11,17 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.util.UUID;
+
 public class Instrumento extends AppCompatActivity {
+
+    BluetoothAdapter miBluetooth = BluetoothAdapter.getDefaultAdapter();
+    BluetoothDevice dispositivoBluetooth;
+    private BluetoothSocket socketDeBluetooth;
+    static final UUID IdentificadorUnico = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private Handler handlerDeBluetooth;
+
 
     private static final int RETARDO_ANIMACION = 300;
     private final Handler mHideHandler = new Handler();
@@ -88,6 +101,34 @@ public class Instrumento extends AppCompatActivity {
         Intent intent = getIntent();
         direccionMac = intent.getStringExtra(Uno.DIRECCION_MAC);
         Toast.makeText(getApplicationContext(),direccionMac,Toast.LENGTH_SHORT).show();
+        dispositivoBluetooth= miBluetooth.getRemoteDevice(direccionMac);
 
+        try {
+
+            socketDeBluetooth = dispositivoBluetooth.createRfcommSocketToServiceRecord(IdentificadorUnico);
+        }catch (IOException e){
+            Toast.makeText(getBaseContext(), "La creacción del Socket fallo", Toast.LENGTH_LONG).show();
+        }
+        try {
+            socketDeBluetooth.connect();
+            Toast.makeText(getBaseContext(), "CONEXION EXITOSA", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getBaseContext(), "Fallo en la Conexion", Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        try {
+            socketDeBluetooth.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getBaseContext(), "Fallo en la desconexion", Toast.LENGTH_SHORT).show();
+
+        }
     }
 }

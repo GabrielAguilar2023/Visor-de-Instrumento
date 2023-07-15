@@ -20,15 +20,12 @@ import java.util.concurrent.TimeUnit;
 
 public class Uno extends AppCompatActivity {
 
-    //Variables necesarias para pedir habilitar el BT
     public int codigoActivacion = 0;
     private String direccionMAC;
     public static String DIRECCION_MAC = "direccionMac";
 
     public Intent pedidoHabilitacionBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
     BluetoothAdapter miBlueTooth = BluetoothAdapter.getDefaultAdapter();
-    private BluetoothSocket ConexionBT;
-    static final UUID IdentificadorUnico = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
 
     private TextView textoDialogo;
