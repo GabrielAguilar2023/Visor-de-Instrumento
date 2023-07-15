@@ -9,9 +9,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 
 public class Instrumento extends AppCompatActivity {
@@ -21,13 +24,15 @@ public class Instrumento extends AppCompatActivity {
     private BluetoothSocket socketDeBluetooth;
     static final UUID IdentificadorUnico = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private Handler handlerDeBluetooth;
-
+    final int handlerState = 0;
+    private HiloConectado MyConexionBT;
 
     private static final int RETARDO_ANIMACION = 300;
     private final Handler mHideHandler = new Handler();
     private View pantallaPrincipal;
     private View controlesOcultables;
     private boolean estanVisiblesLosControles;
+    private TextView texto;
 
 
     private static String direccionMac;
@@ -56,6 +61,7 @@ public class Instrumento extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_instrumento);
+        texto = findViewById(R.id.texto);
         estanVisiblesLosControles = true;
         controlesOcultables = findViewById(R.id.controlesOcultables);
         pantallaPrincipal = findViewById(R.id.pantallaPrincipal);
@@ -63,10 +69,60 @@ public class Instrumento extends AppCompatActivity {
         pantallaPrincipal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mostrarOcultar();
-            }
-        });
+            mostrarOcultar();}});
+        manejarHandlerDeBluetooth();
+        conectarBluetooth();
+
+        MyConexionBT = new HiloConectado(socketDeBluetooth);
+        MyConexionBT.start();
+MyConexionBT.write("muchos datos");
+
+
+
     }
+
+    public void manejarHandlerDeBluetooth() {
+        handlerDeBluetooth = new Handler(){
+            public void handleMessage (android.os.Message msg){
+                if (msg.what == handlerState) {
+                    //Interacción con los datos de ingreso
+                    char MyCaracter = (char) msg.obj;
+                    Toast.makeText(getApplicationContext(),MyCaracter,Toast.LENGTH_LONG).show();
+
+                    if (MyCaracter == 'a') {
+                        texto.setText("ACELERANDO");
+                    }
+                }
+            }
+        };
+    }
+
+    private void conectarBluetooth() {
+
+        Intent intent = getIntent();
+        direccionMac = intent.getStringExtra(Uno.DIRECCION_MAC);
+        Toast.makeText(getApplicationContext(),direccionMac,Toast.LENGTH_SHORT).show();
+        dispositivoBluetooth= miBluetooth.getRemoteDevice(direccionMac);
+
+        try {
+
+            socketDeBluetooth = dispositivoBluetooth.createRfcommSocketToServiceRecord(IdentificadorUnico);
+        } catch (IOException e) {
+            Toast.makeText(getBaseContext(), "La creacción del Socket fallo", Toast.LENGTH_LONG).show();
+        }
+        try {
+            socketDeBluetooth.connect();
+            Toast.makeText(getBaseContext(), "CONEXION EXITOSA", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getBaseContext(), "Fallo en la Conexion", Toast.LENGTH_SHORT).show();
+
+        }
+
+    }
+
+
 
     private void mostrarOcultar() {
         if (estanVisiblesLosControles) {
@@ -99,31 +155,16 @@ public class Instrumento extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-        Intent intent = getIntent();
-        direccionMac = intent.getStringExtra(Uno.DIRECCION_MAC);
-        Toast.makeText(getApplicationContext(),direccionMac,Toast.LENGTH_SHORT).show();
-        dispositivoBluetooth= miBluetooth.getRemoteDevice(direccionMac);
-
-        try {
-
-            socketDeBluetooth = dispositivoBluetooth.createRfcommSocketToServiceRecord(IdentificadorUnico);
-        }catch (IOException e){
-            Toast.makeText(getBaseContext(), "La creacción del Socket fallo", Toast.LENGTH_LONG).show();
+        if (!socketDeBluetooth.isConnected()){
+           //Todo: mostrar indicacion de si está o no conectado el bluetooth
         }
-        try {
-            socketDeBluetooth.connect();
-            Toast.makeText(getBaseContext(), "CONEXION EXITOSA", Toast.LENGTH_SHORT).show();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(getBaseContext(), "Fallo en la Conexion", Toast.LENGTH_SHORT).show();
 
-        }
     }
 
     @Override
-    protected void onPause(){
-        super.onPause();
+    protected void onDestroy(){
+        super.onDestroy();
         try {
             socketDeBluetooth.close();
         } catch (IOException e) {
@@ -132,4 +173,55 @@ public class Instrumento extends AppCompatActivity {
 
         }
     }
+
+
+    //Crea la clase que permite crear el evento de conexion
+    public class HiloConectado extends Thread
+    {
+        private final InputStream mmInStream;
+        private final OutputStream mmOutStream;
+
+        public HiloConectado(BluetoothSocket socket)
+        {
+            InputStream tmpIn = null;
+            OutputStream tmpOut = null;
+            try
+            {
+                tmpIn = socket.getInputStream();
+                tmpOut = socket.getOutputStream();
+            } catch (IOException e) { }
+            mmInStream = tmpIn;
+            mmOutStream = tmpOut;
+        }
+
+        public void run()
+        {
+            byte[] byte_in = new byte[1];
+            // Se mantiene en modo escucha para determinar el ingreso de datos
+            while (true) {
+                try {
+                    mmInStream.read(byte_in);
+                    char ch = (char) byte_in[0];
+                    handlerDeBluetooth.obtainMessage(handlerState, ch).sendToTarget();
+                } catch (IOException e) {
+                    break;
+                }
+            }
+        }
+
+        //Envio de trama
+        public void write(String input)
+        {
+            try {
+                mmOutStream.write(input.getBytes());
+            }
+            catch (IOException e)
+            {
+                //si no es posible enviar datos se cierra la conexión
+                Toast.makeText(getBaseContext(), "La Conexión fallo", Toast.LENGTH_LONG).show();
+                finish();
+            }
+        }
+    }
+
 }
