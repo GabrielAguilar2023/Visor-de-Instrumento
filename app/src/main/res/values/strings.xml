@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Visor</string>
+
+    <string name="title_activity_instrumento">Instrumento</string>
+    <string name="dummy_button">Salir</string>
+    <string name="textoInstrumento">mH</string>
+</resources>
