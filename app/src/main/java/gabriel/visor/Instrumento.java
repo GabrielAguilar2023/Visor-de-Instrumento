@@ -70,8 +70,8 @@ public class Instrumento extends AppCompatActivity {
             @Override
             public void onClick(View view) {
             mostrarOcultar();}});
-        manejarHandlerDeBluetooth();
         conectarBluetooth();
+        manejarHandlerDeBluetooth();
 
         MyConexionBT = new HiloConectado(socketDeBluetooth);
         MyConexionBT.start();
@@ -86,12 +86,8 @@ MyConexionBT.write("muchos datos");
             public void handleMessage (android.os.Message msg){
                 if (msg.what == handlerState) {
                     //Interacción con los datos de ingreso
-                    char MyCaracter = (char) msg.obj;
-                    Toast.makeText(getApplicationContext(),MyCaracter,Toast.LENGTH_LONG).show();
-
-                    if (MyCaracter == 'a') {
-                        texto.setText("ACELERANDO");
-                    }
+                    String palabra = msg.obj.toString();
+                        texto.setText(palabra);
                 }
             }
         };
