@@ -15,6 +15,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class Instrumento extends AppCompatActivity {
@@ -86,8 +87,10 @@ MyConexionBT.write("muchos datos");
             public void handleMessage (android.os.Message msg){
                 if (msg.what == handlerState) {
                     //Interacción con los datos de ingreso
-                    String palabra = msg.obj.toString();
-                        texto.setText(palabra);
+                    byte[] valor = (byte[])msg.obj;
+                    int entero1 = (int) valor[0];
+                    String string = Arrays.toString(valor);
+                    texto.setText(string);
                 }
             }
         };
@@ -192,13 +195,17 @@ MyConexionBT.write("muchos datos");
 
         public void run()
         {
-            byte[] byte_in = new byte[1];
+            byte[] buffer = new byte[4];
+
+            int numBytes;
             // Se mantiene en modo escucha para determinar el ingreso de datos
             while (true) {
                 try {
-                    mmInStream.read(byte_in);
-                    char ch = (char) byte_in[0];
-                    handlerDeBluetooth.obtainMessage(handlerState, ch).sendToTarget();
+                    numBytes = mmInStream.read(buffer);
+                    //String string = buffer.toString();
+                    handlerDeBluetooth.obtainMessage(handlerState,numBytes,-1,buffer).sendToTarget();
+                    //handlerDeBluetooth.obtainMessage(handlerState, ch).sendToTarget();
+
                 } catch (IOException e) {
                     break;
                 }
