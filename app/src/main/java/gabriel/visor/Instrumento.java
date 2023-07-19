@@ -1,5 +1,6 @@
 package gabriel.visor;
 
+
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -11,12 +12,11 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.UUID;
+import com.ekn.gruzer.gaugelibrary.HalfGauge;
 
 public class Instrumento extends AppCompatActivity {
 
@@ -24,20 +24,25 @@ public class Instrumento extends AppCompatActivity {
     BluetoothDevice dispositivoBluetooth;
     private BluetoothSocket socketDeBluetooth;
     static final UUID IdentificadorUnico = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    static final byte INICIO_BUFFER = 42; //Caracter "*" indica el inicio del paquete recibido
     private Handler handlerDeBluetooth;
     final int handlerState = 0;
     private HiloConectado MyConexionBT;
 
     private static final int RETARDO_ANIMACION = 300;
     private final Handler mHideHandler = new Handler();
+    private String palabraEnBinario;
+    private boolean estanVisiblesLosControles;
+
     private View pantallaPrincipal;
     private View controlesOcultables;
-    private boolean estanVisiblesLosControles;
     private TextView texto;
-
+    HalfGauge medidor;
+    com.ekn.gruzer.gaugelibrary.Range Rango1,Rango2,Rango3;
 
     private static String direccionMac;
 
+    //----------------------------------------------------------------
     private final Runnable OcultarRunnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -62,10 +67,18 @@ public class Instrumento extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_instrumento);
+        medidor = findViewById(R.id.medidor);
+medidor.setMinValue(0);
+medidor.setMaxValue(2000);
+
+
+
+
         texto = findViewById(R.id.texto);
-        estanVisiblesLosControles = true;
+
         controlesOcultables = findViewById(R.id.controlesOcultables);
         pantallaPrincipal = findViewById(R.id.pantallaPrincipal);
+        estanVisiblesLosControles = true;
         hide();
         pantallaPrincipal.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,21 +89,20 @@ public class Instrumento extends AppCompatActivity {
 
         MyConexionBT = new HiloConectado(socketDeBluetooth);
         MyConexionBT.start();
-MyConexionBT.write("muchos datos");
-
-
+        MyConexionBT.write("muchos datos");
 
     }
+
 
     public void manejarHandlerDeBluetooth() {
         handlerDeBluetooth = new Handler(){
             public void handleMessage (android.os.Message msg){
                 if (msg.what == handlerState) {
                     //Interacción con los datos de ingreso
-                    byte[] valor = (byte[])msg.obj;
-                    int entero1 = (int) valor[0];
-                    String string = Arrays.toString(valor);
-                    texto.setText(string);
+                    byte[] buffer = (byte[])msg.obj;
+                    int valor = convertirAInt(buffer);
+                    medidor.setValue(valor);
+                    texto.setText(String.valueOf(valor));
                 }
             }
         };
@@ -120,8 +132,6 @@ MyConexionBT.write("muchos datos");
         }
 
     }
-
-
 
     private void mostrarOcultar() {
         if (estanVisiblesLosControles) {
@@ -169,7 +179,6 @@ MyConexionBT.write("muchos datos");
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(getBaseContext(), "Fallo en la desconexion", Toast.LENGTH_SHORT).show();
-
         }
     }
 
@@ -202,9 +211,8 @@ MyConexionBT.write("muchos datos");
             while (true) {
                 try {
                     numBytes = mmInStream.read(buffer);
-                    //String string = buffer.toString();
+                    if (buffer[0]!=INICIO_BUFFER)
                     handlerDeBluetooth.obtainMessage(handlerState,numBytes,-1,buffer).sendToTarget();
-                    //handlerDeBluetooth.obtainMessage(handlerState, ch).sendToTarget();
 
                 } catch (IOException e) {
                     break;
@@ -227,4 +235,14 @@ MyConexionBT.write("muchos datos");
         }
     }
 
+    public int convertirAInt (byte[] vector){
+        palabraEnBinario="";
+        for (int i=0; i < vector.length;i++){
+            agregarByte(vector[i]);
+        }
+        return Integer.parseInt(palabraEnBinario,2);
+    }
+    private void agregarByte(byte b1){
+        palabraEnBinario = palabraEnBinario + String.format("%8s", Integer.toBinaryString(b1 & 0xFF)).replace(' ', '0');
+    }
 }

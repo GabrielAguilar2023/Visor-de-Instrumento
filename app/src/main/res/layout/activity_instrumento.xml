@@ -22,9 +22,9 @@
         android:orientation="vertical">
 
         <com.ekn.gruzer.gaugelibrary.HalfGauge
-            android:id="@+id/Medidor2"
+            android:id="@+id/medidor"
             android:layout_width="match_parent"
-            android:layout_height="350dp" />
+            android:layout_height="336dp" />
 
         <TextView
             android:id="@+id/texto"
@@ -36,7 +36,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/Medidor2"
+            app:layout_constraintTop_toBottomOf="@+id/medidor"
             app:layout_constraintVertical_bias="0.237" />
     </android.support.constraint.ConstraintLayout>
 
