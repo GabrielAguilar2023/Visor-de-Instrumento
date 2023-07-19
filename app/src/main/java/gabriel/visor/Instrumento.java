@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +26,7 @@ public class Instrumento extends AppCompatActivity {
     BluetoothDevice dispositivoBluetooth;
     private BluetoothSocket socketDeBluetooth;
     static final UUID IdentificadorUnico = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private static String direccionMac;
     static final byte INICIO_BUFFER = 42; //Caracter "*" indica el inicio del paquete recibido
     private Handler handlerDeBluetooth;
     final int handlerState = 0;
@@ -40,7 +43,6 @@ public class Instrumento extends AppCompatActivity {
     HalfGauge medidor;
     com.ekn.gruzer.gaugelibrary.Range Rango1,Rango2,Rango3;
 
-    private static String direccionMac;
 
     //----------------------------------------------------------------
     private final Runnable OcultarRunnable = new Runnable() {
@@ -68,11 +70,36 @@ public class Instrumento extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_instrumento);
         medidor = findViewById(R.id.medidor);
-medidor.setMinValue(0);
-medidor.setMaxValue(2000);
+        medidor.setMinValue(0);
+        medidor.setMaxValue(1024);
 
+        Rango1= new com.ekn.gruzer.gaugelibrary.Range();
+        Rango2= new com.ekn.gruzer.gaugelibrary.Range();
+        Rango3= new com.ekn.gruzer.gaugelibrary.Range();
 
+        Rango1.setFrom(0); Rango1.setTo(300);
+        Rango2.setFrom(300); Rango2.setTo(700);
+        Rango3.setFrom(700); Rango3.setTo(1024);
 
+        Rango1.setColor(Color.argb(79,244,20,96));
+        Rango2.setColor(Color.RED);
+        Rango3.setColor(Color.YELLOW);
+
+        medidor.addRange(Rango1);
+        medidor.addRange(Rango2);
+        medidor.addRange(Rango3);
+        medidor.setEnableBackGroundShadow(true);
+        medidor.setEnableNeedleShadow(true);
+        medidor.setEnabled(true);
+        medidor.setValueColor(Color.CYAN);
+        medidor.setAlpha(1.0f);
+        medidor.setMaxValueTextColor(Color.WHITE);
+        medidor.setMinValueTextColor(Color.BLACK);
+        medidor.setContentDescription("Pueba");
+        medidor.setNeedleColor(Color.GREEN);
+        medidor.setBackgroundColor(Color.GRAY);
+        medidor.setKeepScreenOn(true);
+        medidor.setGaugeBackGroundColor(Color.CYAN);
 
         texto = findViewById(R.id.texto);
 
@@ -84,8 +111,8 @@ medidor.setMaxValue(2000);
             @Override
             public void onClick(View view) {
             mostrarOcultar();}});
-        conectarBluetooth();
-        manejarHandlerDeBluetooth();
+            conectarBluetooth();
+            manejarHandlerDeBluetooth();
 
         MyConexionBT = new HiloConectado(socketDeBluetooth);
         MyConexionBT.start();
@@ -102,7 +129,7 @@ medidor.setMaxValue(2000);
                     byte[] buffer = (byte[])msg.obj;
                     int valor = convertirAInt(buffer);
                     medidor.setValue(valor);
-                    texto.setText(String.valueOf(valor));
+                    //texto.setText(String.valueOf(valor));
                 }
             }
         };
