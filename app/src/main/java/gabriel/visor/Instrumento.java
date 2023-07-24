@@ -1,13 +1,11 @@
 package gabriel.visor;
 
-
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +16,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
+import com.androidplot.util.Redrawer;
+import com.androidplot.xy.BoundaryMode;
+import com.androidplot.xy.LineAndPointFormatter;
+import com.androidplot.xy.SimpleXYSeries;
+import com.androidplot.xy.XYPlot;
 import com.ekn.gruzer.gaugelibrary.HalfGauge;
 
 public class Instrumento extends AppCompatActivity {
@@ -33,6 +36,8 @@ public class Instrumento extends AppCompatActivity {
     private HiloConectado MyConexionBT;
 
     private static final int RETARDO_ANIMACION = 300;
+
+    private static final int TAMAÑO_MUESTRAS = 50;
     private final Handler mHideHandler = new Handler();
     private String palabraEnBinario;
     private boolean estanVisiblesLosControles;
@@ -40,11 +45,14 @@ public class Instrumento extends AppCompatActivity {
     private View pantallaPrincipal;
     private View controlesOcultables;
     private TextView texto;
+    private XYPlot plot;
+    private SimpleXYSeries seriePlot;
+    private Redrawer redrawer;
+
     HalfGauge medidor;
     com.ekn.gruzer.gaugelibrary.Range Rango1,Rango2,Rango3;
 
-
-    //----------------------------------------------------------------
+    //-------------------------------------------------------
     private final Runnable OcultarRunnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -70,24 +78,13 @@ public class Instrumento extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_instrumento);
         medidor = findViewById(R.id.medidor);
-        medidor.setMinValue(0);
-        medidor.setMaxValue(1024);
 
-        Rango1= new com.ekn.gruzer.gaugelibrary.Range();
-        Rango2= new com.ekn.gruzer.gaugelibrary.Range();
-        Rango3= new com.ekn.gruzer.gaugelibrary.Range();
+        Rango1= new com.ekn.gruzer.gaugelibrary.Range(); Rango1.setFrom(0); Rango1.setTo(300); Rango1.setColor(Color.argb(79,244,20,96));
+        Rango2= new com.ekn.gruzer.gaugelibrary.Range(); Rango2.setFrom(300); Rango2.setTo(700); Rango2.setColor(Color.RED);
+        Rango3= new com.ekn.gruzer.gaugelibrary.Range(); Rango3.setFrom(700); Rango3.setTo(1024); Rango3.setColor(Color.YELLOW);
 
-        Rango1.setFrom(0); Rango1.setTo(300);
-        Rango2.setFrom(300); Rango2.setTo(700);
-        Rango3.setFrom(700); Rango3.setTo(1024);
-
-        Rango1.setColor(Color.argb(79,244,20,96));
-        Rango2.setColor(Color.RED);
-        Rango3.setColor(Color.YELLOW);
-
-        medidor.addRange(Rango1);
-        medidor.addRange(Rango2);
-        medidor.addRange(Rango3);
+        medidor.setMinValue(0); medidor.setMaxValue(1024);
+        medidor.addRange(Rango1); medidor.addRange(Rango2); medidor.addRange(Rango3);
         medidor.setEnableBackGroundShadow(true);
         medidor.setEnableNeedleShadow(true);
         medidor.setEnabled(true);
@@ -103,11 +100,20 @@ public class Instrumento extends AppCompatActivity {
 
         texto = findViewById(R.id.texto);
 
+        plot = findViewById(R.id.plot);
+        seriePlot = new SimpleXYSeries("");
+        seriePlot.useImplicitXVals();
+        plot.removeXMarkers();
+        plot.setBackgroundColor(Color.argb(255,100,0,0));
+        plot.addSeries(seriePlot,new LineAndPointFormatter(Color.argb(255,7,255,255),Color.GREEN,Color.argb(130,33,116,116),null));
+        plot.setRangeBoundaries(0,1024, BoundaryMode.FIXED);
+        redrawer = new Redrawer(plot,2,true);
+
         controlesOcultables = findViewById(R.id.controlesOcultables);
         pantallaPrincipal = findViewById(R.id.pantallaPrincipal);
         estanVisiblesLosControles = true;
         hide();
-        pantallaPrincipal.setOnClickListener(new View.OnClickListener() {
+        medidor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
             mostrarOcultar();}});
@@ -117,11 +123,10 @@ public class Instrumento extends AppCompatActivity {
         MyConexionBT = new HiloConectado(socketDeBluetooth);
         MyConexionBT.start();
         MyConexionBT.write("muchos datos");
-
     }
 
-
-    public void manejarHandlerDeBluetooth() {
+    @SuppressLint("HandlerLeak")
+    public synchronized void manejarHandlerDeBluetooth() {
         handlerDeBluetooth = new Handler(){
             public void handleMessage (android.os.Message msg){
                 if (msg.what == handlerState) {
@@ -129,7 +134,13 @@ public class Instrumento extends AppCompatActivity {
                     byte[] buffer = (byte[])msg.obj;
                     int valor = convertirAInt(buffer);
                     medidor.setValue(valor);
-                    //texto.setText(String.valueOf(valor));
+
+                    if (seriePlot.size() > TAMAÑO_MUESTRAS){
+                        seriePlot.removeFirst();
+                        seriePlot.addLast(null,valor);
+                    }else{
+                        seriePlot.addLast(null,valor);
+                    }
                 }
             }
         };
@@ -143,7 +154,6 @@ public class Instrumento extends AppCompatActivity {
         dispositivoBluetooth= miBluetooth.getRemoteDevice(direccionMac);
 
         try {
-
             socketDeBluetooth = dispositivoBluetooth.createRfcommSocketToServiceRecord(IdentificadorUnico);
         } catch (IOException e) {
             Toast.makeText(getBaseContext(), "La creacción del Socket fallo", Toast.LENGTH_LONG).show();
@@ -155,9 +165,7 @@ public class Instrumento extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(getBaseContext(), "Fallo en la Conexion", Toast.LENGTH_SHORT).show();
-
         }
-
     }
 
     private void mostrarOcultar() {
@@ -194,8 +202,6 @@ public class Instrumento extends AppCompatActivity {
         if (!socketDeBluetooth.isConnected()){
            //Todo: mostrar indicacion de si está o no conectado el bluetooth
         }
-
-
     }
 
     @Override
@@ -208,7 +214,6 @@ public class Instrumento extends AppCompatActivity {
             Toast.makeText(getBaseContext(), "Fallo en la desconexion", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     //Crea la clase que permite crear el evento de conexion
     public class HiloConectado extends Thread

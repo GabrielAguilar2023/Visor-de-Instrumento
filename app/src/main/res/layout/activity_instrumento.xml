@@ -23,21 +23,31 @@
 
         <com.ekn.gruzer.gaugelibrary.HalfGauge
             android:id="@+id/medidor"
-            android:layout_width="match_parent"
-            android:layout_height="336dp" />
+            android:layout_width="wrap_content"
+            android:layout_height="350dp"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/texto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
             android:text="@string/textoInstrumento"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/medidor" />
+
+
+        <com.androidplot.xy.XYPlot
+            android:id="@+id/plot"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/medidor"
-            app:layout_constraintVertical_bias="0.237" />
+            app:layout_constraintTop_toBottomOf="@+id/medidor" />
+
     </android.support.constraint.ConstraintLayout>
 
     <FrameLayout
