@@ -103,12 +103,9 @@ public class Instrumento extends AppCompatActivity {
         plot = findViewById(R.id.plot);
         seriePlot = new SimpleXYSeries("");
         seriePlot.useImplicitXVals();
-        plot.removeXMarkers();
-        plot.setBackgroundColor(Color.argb(255,100,0,0));
-        plot.addSeries(seriePlot,new LineAndPointFormatter(Color.argb(255,7,255,255),Color.GREEN,Color.argb(130,33,116,116),null));
+        plot.addSeries(seriePlot,new LineAndPointFormatter(Color.argb(255,0,255,0),null,Color.argb(100,0,116,0),null));
         plot.setRangeBoundaries(0,1024, BoundaryMode.FIXED);
-        redrawer = new Redrawer(plot,2,true);
-
+        redrawer = new Redrawer(plot,5,true);
         controlesOcultables = findViewById(R.id.controlesOcultables);
         pantallaPrincipal = findViewById(R.id.pantallaPrincipal);
         estanVisiblesLosControles = true;
