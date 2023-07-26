@@ -4,4 +4,5 @@
     <string name="title_activity_instrumento">Instrumento</string>
     <string name="dummy_button">Salir</string>
     <string name="textoInstrumento">mH</string>
+    <string name="valorInstrumento">0.0</string>
 </resources>

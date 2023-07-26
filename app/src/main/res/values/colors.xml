@@ -6,5 +6,9 @@
     <color name="fondoTransparente">#00000000</color>
 <color name="escala">#4ff41460</color>
     <color name="black_overlay">#66000000</color>
-    <color name="Fondo">#bf214b74</color>
+    <color name="Fondo">#bf0b1a27</color>
+    <color name="ap_black">#004454bb</color>
+    <color name="off_white">#bf214b74</color>
+    <color name="ap_charcoal">#bf0b1a27</color>
+    <color name="unidades">#4dc9d1d8</color>
 </resources>

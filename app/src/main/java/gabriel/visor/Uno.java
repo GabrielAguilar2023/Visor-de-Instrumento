@@ -46,6 +46,7 @@ public class Uno extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        //Toast.makeText(this,"onResume",Toast.LENGTH_SHORT).show();
         ActivarBT();
         listaDispositivos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
            @Override
@@ -58,15 +59,9 @@ public class Uno extends AppCompatActivity {
                Intent intend = new Intent(getApplicationContext(),Instrumento.class);
                intend.putExtra(DIRECCION_MAC, direccionMAC);
                startActivity(intend);
-
            }
         }
         );
-
-
-
-
-
     }
 
     private void ActivarBT() {
@@ -84,6 +79,7 @@ public class Uno extends AppCompatActivity {
                     if (miBlueTooth.isEnabled()) {
                         miBlueTooth.disable();
                         listaDispositivos.setVisibility(View.INVISIBLE);
+                        textoDialogo.setText(" ");
                         conexionBluetooth.setImageResource(R.drawable.btoff);
                     }else if (!miBlueTooth.isEnabled()) {
                             startActivityForResult(pedidoHabilitacionBluetooth, codigoActivacion);
@@ -95,8 +91,10 @@ public class Uno extends AppCompatActivity {
     }
 
     private void desactivado() {
+        textoDialogo.setText(" ");
         conexionBluetooth.setImageResource(R.drawable.btoff);
         listaDispositivos.setVisibility(View.INVISIBLE);
+
     }
 
     private void activado() {
@@ -115,7 +113,7 @@ public class Uno extends AppCompatActivity {
         //   Toast.makeText(this,"Cualquiera",Toast.LENGTH_SHORT).show();
         if(requestCode== codigoActivacion){
             if(resultCode==RESULT_OK){
-                Toast.makeText(getApplicationContext(),"Activando Bluetooth",Toast.LENGTH_LONG).show();
+            //    Toast.makeText(getApplicationContext(),"Activando Bluetooth",Toast.LENGTH_LONG).show();
                 conexionBluetooth.setImageResource(R.drawable.bton);
             }else if (resultCode==RESULT_CANCELED){
                 Toast.makeText(getApplicationContext(),"Cancelando la activacion del Bluetooth",Toast.LENGTH_LONG).show();
@@ -134,16 +132,7 @@ public class Uno extends AppCompatActivity {
                 indice++;
             }
         }
-        ArrayAdapter <String> adaptador = new ArrayAdapter<>(getApplicationContext(),android.R.layout.simple_list_item_1,dispositivos);
+        ArrayAdapter <String> adaptador = new ArrayAdapter<>(getApplicationContext(),R.layout.item_lista,dispositivos);
         listaDispositivos.setAdapter(adaptador);
-
-    }
-
-
-    public void irAInstrumento(View v){
-        Intent intentoIrInstrumento = new Intent(this, Instrumento.class);
-        startActivity(intentoIrInstrumento);
-
-
     }
 }

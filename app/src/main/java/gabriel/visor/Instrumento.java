@@ -41,10 +41,13 @@ public class Instrumento extends AppCompatActivity {
     private final Handler mHideHandler = new Handler();
     private String palabraEnBinario;
     private boolean estanVisiblesLosControles;
+    private String unidadesDeMedicion = "mH";
+    private String nombreInstrumento = "Inductómetro";
 
     private View pantallaPrincipal;
     private View controlesOcultables;
     private TextView texto;
+    private TextView unidades;
     private XYPlot plot;
     private SimpleXYSeries seriePlot;
     private Redrawer redrawer;
@@ -78,29 +81,24 @@ public class Instrumento extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_instrumento);
         medidor = findViewById(R.id.medidor);
-
-        Rango1= new com.ekn.gruzer.gaugelibrary.Range(); Rango1.setFrom(0); Rango1.setTo(300); Rango1.setColor(Color.argb(79,244,20,96));
-        Rango2= new com.ekn.gruzer.gaugelibrary.Range(); Rango2.setFrom(300); Rango2.setTo(700); Rango2.setColor(Color.RED);
-        Rango3= new com.ekn.gruzer.gaugelibrary.Range(); Rango3.setFrom(700); Rango3.setTo(1024); Rango3.setColor(Color.YELLOW);
-
-        medidor.setMinValue(0); medidor.setMaxValue(1024);
-        medidor.addRange(Rango1); medidor.addRange(Rango2); medidor.addRange(Rango3);
-        medidor.setEnableBackGroundShadow(true);
-        medidor.setEnableNeedleShadow(true);
-        medidor.setEnabled(true);
-        medidor.setValueColor(Color.CYAN);
-        medidor.setAlpha(1.0f);
-        medidor.setMaxValueTextColor(Color.WHITE);
-        medidor.setMinValueTextColor(Color.BLACK);
-        medidor.setContentDescription("Pueba");
-        medidor.setNeedleColor(Color.GREEN);
-        medidor.setBackgroundColor(Color.GRAY);
-        medidor.setKeepScreenOn(true);
-        medidor.setGaugeBackGroundColor(Color.CYAN);
-
         texto = findViewById(R.id.texto);
-
+        unidades = findViewById(R.id.unidades);
         plot = findViewById(R.id.plot);
+
+        unidades.setText(nombreInstrumento);
+
+        Rango1= new com.ekn.gruzer.gaugelibrary.Range(); Rango1.setFrom(0); Rango1.setTo(500); Rango1.setColor(0xFF14FB27);
+        Rango2= new com.ekn.gruzer.gaugelibrary.Range(); Rango2.setFrom(500); Rango2.setTo(800); Rango2.setColor(0xFFF3FB14);
+        Rango3= new com.ekn.gruzer.gaugelibrary.Range(); Rango3.setFrom(800); Rango3.setTo(1024); Rango3.setColor(0xFFFB1414);
+
+        medidor.addRange(Rango1); medidor.addRange(Rango2); medidor.addRange(Rango3);
+        medidor.setMinValue(0); medidor.setMaxValue(1024);
+        medidor.setValueColor(0x0014FB27);
+        medidor.setMaxValueTextColor(Color.LTGRAY);
+        medidor.setMinValueTextColor(Color.LTGRAY);
+        medidor.setNeedleColor(Color.GRAY);
+        medidor.setKeepScreenOn(true);
+
         seriePlot = new SimpleXYSeries("");
         seriePlot.useImplicitXVals();
         plot.addSeries(seriePlot,new LineAndPointFormatter(Color.argb(255,0,255,0),null,Color.argb(100,0,116,0),null));
@@ -131,7 +129,7 @@ public class Instrumento extends AppCompatActivity {
                     byte[] buffer = (byte[])msg.obj;
                     int valor = convertirAInt(buffer);
                     medidor.setValue(valor);
-
+                    texto.setText(String.valueOf(valor)+ " " + unidadesDeMedicion);
                     if (seriePlot.size() > TAMAÑO_MUESTRAS){
                         seriePlot.removeFirst();
                         seriePlot.addLast(null,valor);
@@ -147,7 +145,7 @@ public class Instrumento extends AppCompatActivity {
 
         Intent intent = getIntent();
         direccionMac = intent.getStringExtra(Uno.DIRECCION_MAC);
-        Toast.makeText(getApplicationContext(),direccionMac,Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(),direccionMac,Toast.LENGTH_SHORT).show();
         dispositivoBluetooth= miBluetooth.getRemoteDevice(direccionMac);
 
         try {
@@ -157,7 +155,7 @@ public class Instrumento extends AppCompatActivity {
         }
         try {
             socketDeBluetooth.connect();
-            Toast.makeText(getBaseContext(), "CONEXION EXITOSA", Toast.LENGTH_SHORT).show();
+        //    Toast.makeText(getBaseContext(), "CONEXION EXITOSA", Toast.LENGTH_SHORT).show();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -205,7 +203,8 @@ public class Instrumento extends AppCompatActivity {
     protected void onDestroy(){
         super.onDestroy();
         try {
-            socketDeBluetooth.close();
+          socketDeBluetooth.close();
+          miBluetooth.disable();
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(getBaseContext(), "Fallo en la desconexion", Toast.LENGTH_SHORT).show();
