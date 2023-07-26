@@ -117,7 +117,7 @@ public class Instrumento extends AppCompatActivity {
 
         MyConexionBT = new HiloConectado(socketDeBluetooth);
         MyConexionBT.start();
-        MyConexionBT.write("muchos datos");
+        MyConexionBT.write("A");
     }
 
     @SuppressLint("HandlerLeak")
@@ -188,7 +188,8 @@ public class Instrumento extends AppCompatActivity {
     }
 
     public void salirInstrumento (View v){
-    finish();
+        MyConexionBT.write("a");
+        finish();
     }
 
     @Override
@@ -203,7 +204,7 @@ public class Instrumento extends AppCompatActivity {
     protected void onDestroy(){
         super.onDestroy();
         try {
-          socketDeBluetooth.close();
+            socketDeBluetooth.close();
           miBluetooth.disable();
         } catch (IOException e) {
             e.printStackTrace();
