@@ -9,9 +9,13 @@ import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,8 +38,10 @@ public class Instrumento extends AppCompatActivity {
     private Handler handlerDeBluetooth;
     final int handlerState = 0;
     private HiloConectado MyConexionBT;
+    private boolean grabando = false;
 
     private static final int RETARDO_ANIMACION = 300;
+    private static final String ARCHIVO_GUARDADO = "dato.txt";
 
     private static final int TAMAÑO_MUESTRAS = 50;
     private final Handler mHideHandler = new Handler();
@@ -54,6 +60,8 @@ public class Instrumento extends AppCompatActivity {
 
     HalfGauge medidor;
     com.ekn.gruzer.gaugelibrary.Range Rango1,Rango2,Rango3;
+
+    FileOutputStream fileOutputStream = null;
 
     //-------------------------------------------------------
     private final Runnable OcultarRunnable = new Runnable() {
@@ -117,8 +125,9 @@ public class Instrumento extends AppCompatActivity {
 
         MyConexionBT = new HiloConectado(socketDeBluetooth);
         MyConexionBT.start();
-        MyConexionBT.write("A");
+        comenzarMedicion();
     }
+
 
     @SuppressLint("HandlerLeak")
     public synchronized void manejarHandlerDeBluetooth() {
@@ -130,6 +139,16 @@ public class Instrumento extends AppCompatActivity {
                     int valor = convertirAInt(buffer);
                     medidor.setValue(valor);
                     texto.setText(String.valueOf(valor)+ " " + unidadesDeMedicion);
+
+                    if (grabando){
+                        try {
+                            fileOutputStream.write(valor);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
                     if (seriePlot.size() > TAMAÑO_MUESTRAS){
                         seriePlot.removeFirst();
                         seriePlot.addLast(null,valor);
@@ -188,7 +207,7 @@ public class Instrumento extends AppCompatActivity {
     }
 
     public void salirInstrumento (View v){
-        MyConexionBT.write("a");
+        finalizarMedicion();
         finish();
     }
 
@@ -204,7 +223,7 @@ public class Instrumento extends AppCompatActivity {
     protected void onDestroy(){
         super.onDestroy();
         try {
-            socketDeBluetooth.close();
+          socketDeBluetooth.close();
           miBluetooth.disable();
         } catch (IOException e) {
             e.printStackTrace();
@@ -274,4 +293,43 @@ public class Instrumento extends AppCompatActivity {
     private void agregarByte(byte b1){
         palabraEnBinario = palabraEnBinario + String.format("%8s", Integer.toBinaryString(b1 & 0xFF)).replace(' ', '0');
     }
+
+    public void grabar (View v){
+        finalizarMedicion();
+        comenzarMedicion();
+        if (grabando) {
+            plot.addSeries(seriePlot,new LineAndPointFormatter(Color.argb(255,0,255,0),null,Color.argb(100,0,116,0),null));
+            if (fileOutputStream!=null){
+                try {
+                    fileOutputStream.close();
+                    Toast.makeText(getApplicationContext(),"Fichero cerrado: " + ARCHIVO_GUARDADO,Toast.LENGTH_LONG).show();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }else {
+            try {
+                fileOutputStream = openFileOutput(ARCHIVO_GUARDADO,MODE_PRIVATE);
+                Toast.makeText(getApplicationContext(),"Fichero guardado en " + getFilesDir()+ "/"+ ARCHIVO_GUARDADO,Toast.LENGTH_LONG).show();
+                //Log.d("Tag1","Fichero guardado en " + getFilesDir()+ "/"+ ARCHIVO_GUARDADO);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            plot.addSeries(seriePlot,new LineAndPointFormatter(Color.argb(255,255,0,0),null,Color.argb(100,116,0,0),null));
+
+        }
+        grabando = !grabando;
+    }
+
+    private void comenzarMedicion() {
+        MyConexionBT.write("A");
+    }
+
+    private void finalizarMedicion() {
+        MyConexionBT.write("a");
+        plot.removeSeries(seriePlot);
+        //seriePlot.clear();
+    }
+
 }

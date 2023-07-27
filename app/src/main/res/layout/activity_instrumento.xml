@@ -64,12 +64,14 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="50dp"
+            android:clickable="true"
+            android:onClick="grabar"
             app:domainOriginLineThickness="2dp"
             app:domainTitleTextSize="0sp"
             app:graphMarginBottom="0dp"
+
             app:graphMarginLeft="0dp"
             app:graphMarginRight="0dp"
-
             app:graphMarginTop="0dp"
             app:gridInsetBottom="0dp"
             app:gridInsetLeft="0dp"
