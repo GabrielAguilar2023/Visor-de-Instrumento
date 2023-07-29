@@ -37,18 +37,13 @@ public class VisorDatosGuardados extends AppCompatActivity {
 
         vista = findViewById(R.id.Vista);
         plot = findViewById(R.id.plot);
-
         seriePlot = new SimpleXYSeries("");
 
         leerDatos(seriePlot);
         seriePlot.useImplicitXVals();
         plot.setRangeBoundaries(0,1024, BoundaryMode.FIXED);
-        plot.setDomainBoundaries(0,seriePlot.size(),BoundaryMode.FIXED);
+        plot.setDomainBoundaries(0,seriePlot.size()-1,BoundaryMode.FIXED);
         plot.addSeries(seriePlot,new LineAndPointFormatter(Color.argb(255,0,255,0),null,Color.argb(100,0,116,0),null));
-
-
-
-
 
     }
 

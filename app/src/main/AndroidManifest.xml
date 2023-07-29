@@ -23,6 +23,7 @@
         </activity>
         <activity
             android:name=".Instrumento"
+            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_instrumento"
             android:theme="@style/FullscreenTheme">
@@ -34,6 +35,7 @@
         </activity>
         <activity
             android:name=".VisorDatosGuardados"
+            android:screenOrientation="landscape"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_fullscreen"
             android:theme="@style/FullscreenTheme"></activity>
