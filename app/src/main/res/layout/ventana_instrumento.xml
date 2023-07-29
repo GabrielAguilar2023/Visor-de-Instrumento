@@ -69,7 +69,6 @@
             app:domainOriginLineThickness="2dp"
             app:domainTitleTextSize="0sp"
             app:graphMarginBottom="0dp"
-
             app:graphMarginLeft="0dp"
             app:graphMarginRight="0dp"
             app:graphMarginTop="0dp"

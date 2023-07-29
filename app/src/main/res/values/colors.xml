@@ -4,7 +4,7 @@
     <color name="colorPrimaryDark">#00303f9f</color>
     <color name="colorAccent">#ff4081</color>
     <color name="fondoTransparente">#00000000</color>
-<color name="escala">#4ff41460</color>
+    <color name="escala">#4ff41460</color>
     <color name="black_overlay">#66000000</color>
     <color name="Fondo">#bf0b1a27</color>
     <color name="ap_black">#004454bb</color>

@@ -2,7 +2,6 @@ package gabriel.visor;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class Uno extends AppCompatActivity {
@@ -32,6 +30,7 @@ public class Uno extends AppCompatActivity {
     private TextView textoDialogo;
     private ListView listaDispositivos;
     private ImageButton conexionBluetooth;
+    private Button datosGuardados;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +39,18 @@ public class Uno extends AppCompatActivity {
         textoDialogo = findViewById(R.id.textoInfo);
         conexionBluetooth = (ImageButton) findViewById(R.id.botonBT);
         listaDispositivos = findViewById(R.id.lista);
+        datosGuardados = findViewById(R.id.datosGuardados);
         //ActivarBT();
+        datosGuardados.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(),"Ya estoy listo",Toast.LENGTH_SHORT).show();
+                Intent intend = new Intent(getApplicationContext(),VisorDatosGuardados.class);
+                //intend.putExtra(DIRECCION_MAC, direccionMAC);
+                startActivity(intend);
+            }
+        });
+
     }
 
     @Override
@@ -62,6 +72,8 @@ public class Uno extends AppCompatActivity {
            }
         }
         );
+
+
     }
 
     private void ActivarBT() {

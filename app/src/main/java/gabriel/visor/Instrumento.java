@@ -6,19 +6,21 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.UUID;
 import com.androidplot.util.Redrawer;
 import com.androidplot.xy.BoundaryMode;
@@ -49,6 +51,7 @@ public class Instrumento extends AppCompatActivity {
     private boolean estanVisiblesLosControles;
     private String unidadesDeMedicion = "mH";
     private String nombreInstrumento = "Inductómetro";
+    private String valorMostrar;
 
     private View pantallaPrincipal;
     private View controlesOcultables;
@@ -61,7 +64,7 @@ public class Instrumento extends AppCompatActivity {
     HalfGauge medidor;
     com.ekn.gruzer.gaugelibrary.Range Rango1,Rango2,Rango3;
 
-    FileOutputStream fileOutputStream = null;
+    OutputStreamWriter crearArchivo=null;
 
     //-------------------------------------------------------
     private final Runnable OcultarRunnable = new Runnable() {
@@ -87,7 +90,7 @@ public class Instrumento extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_instrumento);
+        setContentView(R.layout.ventana_instrumento);
         medidor = findViewById(R.id.medidor);
         texto = findViewById(R.id.texto);
         unidades = findViewById(R.id.unidades);
@@ -138,13 +141,16 @@ public class Instrumento extends AppCompatActivity {
                     byte[] buffer = (byte[])msg.obj;
                     int valor = convertirAInt(buffer);
                     medidor.setValue(valor);
-                    texto.setText(String.valueOf(valor)+ " " + unidadesDeMedicion);
+                    valorMostrar = String.valueOf(valor);
+                    texto.setText(valorMostrar + " " + unidadesDeMedicion);
 
                     if (grabando){
                         try {
-                            fileOutputStream.write(valor);
+                            crearArchivo.write(valorMostrar + "\n");
+                            // crearArchivo.flush();
+
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            Toast.makeText(getApplicationContext(),"No se pudo guardar datos",Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -299,22 +305,23 @@ public class Instrumento extends AppCompatActivity {
         comenzarMedicion();
         if (grabando) {
             plot.addSeries(seriePlot,new LineAndPointFormatter(Color.argb(255,0,255,0),null,Color.argb(100,0,116,0),null));
-            if (fileOutputStream!=null){
+            if (crearArchivo!=null){
                 try {
-                    fileOutputStream.close();
-                    Toast.makeText(getApplicationContext(),"Fichero cerrado: " + ARCHIVO_GUARDADO,Toast.LENGTH_LONG).show();
-
+                   crearArchivo.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(),"Error al cerrar archivo!! " + ARCHIVO_GUARDADO,Toast.LENGTH_LONG).show();
                 }
             }
         }else {
             try {
-                fileOutputStream = openFileOutput(ARCHIVO_GUARDADO,MODE_PRIVATE);
-                Toast.makeText(getApplicationContext(),"Fichero guardado en " + getFilesDir()+ "/"+ ARCHIVO_GUARDADO,Toast.LENGTH_LONG).show();
-                //Log.d("Tag1","Fichero guardado en " + getFilesDir()+ "/"+ ARCHIVO_GUARDADO);
+                File tarjetaSD = Environment.getExternalStorageDirectory();
+                File rutaArchivo = new File(tarjetaSD.getAbsolutePath(),ARCHIVO_GUARDADO);
+                Toast.makeText(getApplicationContext(),rutaArchivo.getAbsolutePath(),Toast.LENGTH_LONG).show();
+
+               crearArchivo = new OutputStreamWriter(new FileOutputStream(rutaArchivo));
+
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+               Toast.makeText(getApplicationContext(),"Error al crear Archivo!!",Toast.LENGTH_LONG).show();
             }
             plot.addSeries(seriePlot,new LineAndPointFormatter(Color.argb(255,255,0,0),null,Color.argb(100,116,0,0),null));
 
