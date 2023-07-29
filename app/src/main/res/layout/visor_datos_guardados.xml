@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/Vista"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0099cc"
+    tools:context=".VisorDatosGuardados"
+    tools:layout_editor_absoluteY="25dp">
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+    <com.androidplot.xy.XYPlot
+        android:id="@+id/plot"
+        style="@style/APDefacto.Dark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:focusable="true"
+        app:domainOriginLineThickness="2dp"
+        app:domainTitleTextSize="0sp"
+        app:graphMarginBottom="0dp"
+        app:graphMarginLeft="0dp"
+        app:graphMarginRight="0dp"
+        app:graphMarginTop="0dp"
+        app:gridInsetBottom="0dp"
+        app:gridInsetLeft="0dp"
+        app:gridInsetRight="0dp"
+        app:gridInsetTop="0dp"
+        app:legendAnchor="center"
+        app:legendIconHeight="0dp"
+        app:legendIconWidth="0dp"
+        app:lineLabelAlignRight="center"
+        app:lineLabels=""
+        app:paddingLeft="0dp"
+        app:paddingRight="8dp" />
+
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows. -->
+
+</android.support.constraint.ConstraintLayout>
