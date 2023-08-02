@@ -5,7 +5,7 @@
     android:id="@+id/Vista"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="@color/Fondo"
     tools:context=".VisorDatosGuardados"
     tools:layout_editor_absoluteY="25dp">
 
@@ -18,8 +18,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:clickable="true"
+        android:clickable="false"
+        android:contextClickable="false"
         android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:longClickable="false"
         app:domainOriginLineThickness="2dp"
         app:domainTitleTextSize="0sp"
         app:graphMarginBottom="0dp"
@@ -30,6 +33,8 @@
         app:gridInsetLeft="0dp"
         app:gridInsetRight="0dp"
         app:gridInsetTop="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:legendAnchor="center"
         app:legendIconHeight="0dp"
         app:legendIconWidth="0dp"
@@ -37,6 +42,16 @@
         app:lineLabels=""
         app:paddingLeft="0dp"
         app:paddingRight="8dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="108dp"
+        android:layout_marginTop="48dp"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/plot" />
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->

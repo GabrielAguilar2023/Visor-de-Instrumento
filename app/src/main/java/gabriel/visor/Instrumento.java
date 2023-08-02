@@ -44,6 +44,8 @@ public class Instrumento extends AppCompatActivity {
 
     private static final int RETARDO_ANIMACION = 300;
     private static final String ARCHIVO_GUARDADO = "dato.txt";
+    private static final int Y_MIN =0;
+    private static final int Y_MAX =1024;
 
     private static final int TAMAÑO_MUESTRAS = 50;
     private final Handler mHideHandler = new Handler();
@@ -113,7 +115,7 @@ public class Instrumento extends AppCompatActivity {
         seriePlot = new SimpleXYSeries("");
         seriePlot.useImplicitXVals();
         plot.addSeries(seriePlot,new LineAndPointFormatter(Color.argb(255,0,255,0),null,Color.argb(100,0,116,0),null));
-        plot.setRangeBoundaries(0,1024, BoundaryMode.FIXED);
+        plot.setRangeBoundaries(Y_MIN,Y_MAX, BoundaryMode.FIXED);
         redrawer = new Redrawer(plot,5,true);
         controlesOcultables = findViewById(R.id.controlesOcultables);
         pantallaPrincipal = findViewById(R.id.pantallaPrincipal);
@@ -147,7 +149,6 @@ public class Instrumento extends AppCompatActivity {
                     if (grabando){
                         try {
                             crearArchivo.write(valorMostrar + "\n");
-                            // crearArchivo.flush();
 
                         } catch (IOException e) {
                             Toast.makeText(getApplicationContext(),"No se pudo guardar datos",Toast.LENGTH_SHORT).show();
@@ -307,6 +308,7 @@ public class Instrumento extends AppCompatActivity {
             plot.addSeries(seriePlot,new LineAndPointFormatter(Color.argb(255,0,255,0),null,Color.argb(100,0,116,0),null));
             if (crearArchivo!=null){
                 try {
+                   crearArchivo.flush();
                    crearArchivo.close();
                 } catch (IOException e) {
                     Toast.makeText(getApplicationContext(),"Error al cerrar archivo!! " + ARCHIVO_GUARDADO,Toast.LENGTH_LONG).show();

@@ -44,7 +44,6 @@ public class Uno extends AppCompatActivity {
         datosGuardados.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(),"Ya estoy listo",Toast.LENGTH_SHORT).show();
                 Intent intend = new Intent(getApplicationContext(),VisorDatosGuardados.class);
                 //intend.putExtra(DIRECCION_MAC, direccionMAC);
                 startActivity(intend);
