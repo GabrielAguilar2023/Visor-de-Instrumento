@@ -1,3 +1,7 @@
+/*
+Activar los permisos de acceso al almacenamiento
+ */
+
 package gabriel.visor;
 
 import android.bluetooth.BluetoothAdapter;
