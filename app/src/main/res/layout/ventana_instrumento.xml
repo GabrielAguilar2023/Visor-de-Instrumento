@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="@color/Fondo"
     tools:context=".Instrumento">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
@@ -22,22 +22,72 @@
         android:orientation="vertical">
 
         <com.ekn.gruzer.gaugelibrary.HalfGauge
-            android:id="@+id/Medidor2"
-            android:layout_width="match_parent"
-            android:layout_height="350dp" />
+            android:id="@+id/medidor"
+            android:layout_width="wrap_content"
+            android:layout_height="360dp"
+
+
+            android:layout_marginTop="0dp"
+            android:background="@color/ap_transparent"
+            android:backgroundTintMode="multiply"
+            android:textAlignment="gravity"
+            app:layout_constraintTop_toTopOf="parent" />
+
 
         <TextView
             android:id="@+id/texto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="335dp"
+            android:text="@string/valorInstrumento"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/medidor" />
+
+        <TextView
+            android:id="@+id/unidades"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
             android:text="@string/textoInstrumento"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+            android:textColor="@color/unidades"
+            android:textSize="36sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/medidor" />
+
+        <com.androidplot.xy.XYPlot
+            android:id="@+id/plot"
+            style="@style/APDefacto.Dark"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="50dp"
+            android:clickable="true"
+            android:onClick="grabar"
+            app:domainOriginLineThickness="2dp"
+            app:domainTitleTextSize="0sp"
+            app:graphMarginBottom="0dp"
+            app:graphMarginLeft="0dp"
+            app:graphMarginRight="0dp"
+            app:graphMarginTop="0dp"
+            app:gridInsetBottom="0dp"
+            app:gridInsetLeft="0dp"
+            app:gridInsetRight="0dp"
+            app:gridInsetTop="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/Medidor2"
-            app:layout_constraintVertical_bias="0.237" />
+            app:layout_constraintTop_toBottomOf="@+id/medidor"
+            app:legendAnchor="center"
+            app:legendIconHeight="0dp"
+            app:legendIconWidth="0dp"
+            app:lineLabelAlignRight="center"
+            app:lineLabels=""
+            app:paddingLeft="0dp"
+            app:paddingRight="8dp" />
+
     </android.support.constraint.ConstraintLayout>
 
     <FrameLayout
